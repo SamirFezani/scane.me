@@ -12,7 +12,6 @@ def save_results_to_json(result_data):
     with open('scan_results.json', 'w') as json_file:
         json.dump(result_data, json_file, indent=2)
         messagebox.showinfo("Information", "Résultats du scan sauvegardés avec succès.")
-        upload_to_github()  # Appel de la fonction pour téléverser les résultats sur GitHub
 
 def upload_to_github():
     if os.path.exists('scan_results.json') and os.path.getsize('scan_results.json') > 0:
@@ -22,7 +21,7 @@ def upload_to_github():
         json_data = json.dumps(data)
 
         url = 'https://api.github.com/repos/SamirFezani/scane-me/contents/scan_results.json'
-        token = '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'
+        token = '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'
 
         headers = {
             'Content-Type': 'application/json',
@@ -73,6 +72,7 @@ def perform_scan():
 
         if result_data:
             save_results_to_json(result_data)
+            upload_to_github()  # Appel de la fonction pour téléverser les résultats sur GitHub
         else:
             messagebox.showinfo("Information", "Aucun hôte disponible trouvé pendant le scan.")
             
