@@ -12,7 +12,34 @@ def save_results_to_json(result_data):
     with open('scan_results.json', 'w') as json_file:
         json.dump(result_data, json_file, indent=2)
         messagebox.showinfo("Information", "Résultats du scan sauvegardés avec succès.")
-        upload_to_github()  # Appel de la fonction pour pousser le fichier JSON sur GitHub
+
+def upload_to_github():
+    if os.path.exists('scan_results.json') and os.path.getsize('scan_results.json') > 0:
+        with open('scan_results.json', 'r') as json_file:
+            data = json.load(json_file)
+
+        json_data = json.dumps(data)
+
+        url = 'https://api.github.com/repos/SamirFezani/scane-me/contents/scan_results.json'
+        token = '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'
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'token {token}'
+        }
+        payload = {
+            'message': 'Update scan results',
+            'content': json_data
+        }
+
+        response = requests.put(url, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            print("Fichier JSON envoyé avec succès sur GitHub.")
+        else:
+            print("Échec de l'envoi du fichier JSON sur GitHub. Code de statut :", response.status_code)
+    else:
+        print("Le fichier scan_results.json est vide.")
 
 def scan_network():
     threading.Thread(target=perform_scan).start()
@@ -45,8 +72,10 @@ def perform_scan():
 
         if result_data:
             save_results_to_json(result_data)
+            upload_to_github()  # Appel de la fonction pour téléverser les résultats sur GitHub
         else:
             messagebox.showinfo("Information", "Aucun hôte disponible trouvé pendant le scan.")
+            
     except Exception as e:
         messagebox.showerror("Erreur", f"Une erreur s'est produite pendant le scan : {str(e)}")
 
@@ -79,34 +108,6 @@ def display_results(result_data):
 def calculate_network_range(ip_address, subnet_mask):
     network_address = ipaddress.IPv4Network(ip_address + '/' + subnet_mask, strict=False)
     return str(network_address.network_address) + '/' + str(network_address.prefixlen)
-
-def upload_to_github():
-    if os.path.exists('scan_results.json') and os.path.getsize('scan_results.json') > 0:
-        with open('scan_results.json', 'r') as json_file:
-            data = json.load(json_file) 
-
-        json_data = json.dumps(data)
-
-        url = 'https://api.github.com/repos/SamirFezani/scane.me/contents/scan_results.json'
-        token = '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'
-
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'token {token}'
-        }
-        payload = {
-            'message': 'Update scan results',
-            'content': json_data
-        }
-
-        response = requests.put(url, headers=headers, json=payload)
-
-        if response.status_code == 200:
-            print("Fichier JSON envoyé avec succès sur GitHub.")
-        else:
-            print("Échec de l'envoi du fichier JSON sur GitHub. Code de statut :", response.status_code)
-    else:
-        print("Le fichier scan_results.json est vide.")
 
 root = tk.Tk()
 root.title("Scanner de réseaux locaux")
