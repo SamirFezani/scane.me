@@ -1,0 +1,33 @@
+[
+  {
+    "Adresse IP": "192.168.1.254",
+    "Nom d'h\u00f4te": "bbox.lan",
+    "\u00c9tat": "up",
+    "Adresses MAC": "44:D4:54:F2:11:6C",
+    "Fabricant": {
+      "44:D4:54:F2:11:6C": "Sagemcom Broadband SAS"
+    },
+    "Date": "2024-03-07",
+    "Heure": "19:56:59"
+  },
+  {
+    "Adresse IP": "192.168.1.27",
+    "Nom d'h\u00f4te": "LAPTOP-V7RODQNI.lan",
+    "\u00c9tat": "up",
+    "Adresses MAC": "Non disponible",
+    "Fabricant": {},
+    "Date": "2024-03-07",
+    "Heure": "19:56:59"
+  },
+  {
+    "Adresse IP": "192.168.1.8",
+    "Nom d'h\u00f4te": "BRW38D57A161CFF.lan",
+    "\u00c9tat": "up",
+    "Adresses MAC": "38:D5:7A:16:1C:FF",
+    "Fabricant": {
+      "38:D5:7A:16:1C:FF": "Cloud Network Technology Singapore PTE."
+    },
+    "Date": "2024-03-07",
+    "Heure": "19:56:59"
+  }
+]
