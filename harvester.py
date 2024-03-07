@@ -21,7 +21,7 @@ def upload_to_github():
         json_data = json.dumps(data)
 
         url = 'https://api.github.com/repos/SamirFezani/scane-me/contents/scan_results.json'
-        token = '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'
+        token = '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'
 
         headers = {
             'Content-Type': 'application/json',
