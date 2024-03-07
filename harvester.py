@@ -12,6 +12,7 @@ def save_results_to_json(result_data):
     with open('scan_results.json', 'w') as json_file:
         json.dump(result_data, json_file, indent=2)
         messagebox.showinfo("Information", "Résultats du scan sauvegardés avec succès.")
+        upload_to_github()  # Appel de la fonction pour pousser le fichier JSON sur GitHub
 
 def scan_network():
     threading.Thread(target=perform_scan).start()
@@ -86,7 +87,7 @@ def upload_to_github():
 
         json_data = json.dumps(data)
 
-        url = 'https://api.github.com/repos/SamirFezani/scane-me/contents/scan_results.json'
+        url = 'https://api.github.com/repos/SamirFezani/scane.me/contents/scan_results.json'
         token = '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'
 
         headers = {
