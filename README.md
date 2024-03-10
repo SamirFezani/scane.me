@@ -46,6 +46,9 @@ Nester intègre un système de login sécurisé pour garantir la confidentialit�
 
 ## Auteur
 Samir Fezani
+Slimani rayane Malik
+KOUKOUTHA ARDEL KALEB
+Jiovani Dylan MANGNIM
 
 ## Licence
 Ce projet est sous licence [EPSI]. 
