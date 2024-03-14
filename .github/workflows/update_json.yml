@@ -1,4 +1,4 @@
-name: Update JSON
+name: Update Scan Results
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  update_json:
+  update_results:
     runs-on: ubuntu-latest
     
     steps:
@@ -16,13 +16,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.12' # Specify the version of Python you're using
+          python-version: '3.12' 
       
-      - name: Run Python Script
+      - name: Run Harvester Script
         run: |
-          python harvester.py 
+          python harvester.py
 
-      - name: Commit JSON File
+      - name: Commit Scan Results
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
