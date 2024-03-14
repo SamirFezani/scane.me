@@ -7,6 +7,7 @@ on:
 
 jobs:
   update_results:
+  
     runs-on: ubuntu-latest
     
     steps:
