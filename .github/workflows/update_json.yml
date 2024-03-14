@@ -1,0 +1,31 @@
+name: Update JSON
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_json:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12' # Specify the version of Python you're using
+      
+      - name: Run Python Script
+        run: |
+          python harvester.py 
+
+      - name: Commit JSON File
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add scan_results.json
+          git commit -m "Update scan_results.json" || true  # Using '|| true' to ignore the case where no changes are made
+          git push
