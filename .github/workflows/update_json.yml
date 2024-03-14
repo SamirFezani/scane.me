@@ -16,12 +16,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.12' 
+          python-version: '3.12' # Specify the version of Python you're using
 
       - name: Install Dependencies
         run: |
-          apt-get update -y
-          apt-get install -y nmap
+          pip install python3-nmap
           pip install requests
 
       - name: Run Harvester Script
