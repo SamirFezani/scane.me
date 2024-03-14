@@ -1,3 +1,5 @@
+import tkinter as tk
+from tkinter import messagebox, scrolledtext
 import nmap
 import json
 import threading
@@ -6,17 +8,21 @@ import requests
 import os
 from datetime import datetime
 
-# Import tkinter only if not running in GitHub Actions environment
-if os.getenv('GITHUB_ACTIONS') != 'true':
-    import tkinter as tk
-    from tkinter import messagebox, scrolledtext
+
 
 def save_results_to_json(result_data):
     with open('scan_results.json', 'w') as json_file:
         json.dump(result_data, json_file, indent=2)
-        print("Results saved to scan_results.json successfully.")
+        messagebox.showinfo("Information", "Résultats du scan sauvegardés avec succès.")
 
 def upload_to_github():
+
+
+
+
+
+
+    
     if os.path.exists('scan_results.json') and os.path.getsize('scan_results.json') > 0:
         with open('scan_results.json', 'r') as json_file:
             data = json.load(json_file)
@@ -38,93 +44,99 @@ def upload_to_github():
         response = requests.put(url, headers=headers, json=payload)
 
         if response.status_code == 200:
-            print("JSON file uploaded to GitHub successfully.")
+            print("Fichier JSON envoyé avec succès sur GitHub.")
         else:
-            print("Failed to upload JSON file to GitHub. Status code:", response.status_code)
+            print("Échec de l'envoi du fichier JSON sur GitHub. Code de statut :", response.status_code)
     else:
-        print("The scan_results.json file is empty.")
+        print("Le fichier scan_results.json est vide.")
 
 def scan_network():
     threading.Thread(target=perform_scan).start()
 
 def perform_scan():
     try:
-        if os.getenv('GITHUB_ACTIONS') != 'true':
-            # Create GUI if not running in GitHub Actions environment
-            root = tk.Tk()
-            root.title("Scanner de réseaux locaux")
+        ip_address = entry_ip_address.get()
+        subnet_mask = entry_subnet_mask.get()
+        network_range = calculate_network_range(ip_address, subnet_mask)
 
-            label_ip_address = tk.Label(root, text="Adresse IP:")
-            label_ip_address.pack(pady=5)
+        nm = nmap.PortScanner()
+        nm.scan(hosts=network_range, arguments='-sn')
 
-            entry_ip_address = tk.Entry(root, width=40)
-            entry_ip_address.pack(pady=5)
+        result_data = []
 
-            label_subnet_mask = tk.Label(root, text="Masque de sous-réseau:")
-            label_subnet_mask.pack(pady=5)
+        for host in nm.all_hosts():
+            if nm[host].state() == 'up':
+                host_info = {
+                    'Adresse IP': host,
+                    'Nom d\'hôte': get_hostnames(nm[host]) if 'hostnames' in nm[host] else 'Non disponible',
+                    'État': nm[host].state(),
+                    'Adresses MAC': nm[host]['addresses']['mac'] if 'mac' in nm[host]['addresses'] else 'Non disponible',
+                    'Fabricant': nm[host]['vendor'] if 'vendor' in nm[host] else 'Non disponible',
+                    'Date': datetime.now().strftime("%Y-%m-%d"),
+                    'Heure': datetime.now().strftime("%H:%M:%S")
+                }
+                result_data.append(host_info)
 
-            entry_subnet_mask = tk.Entry(root, width=40)
-            entry_subnet_mask.pack(pady=5)
+        root.after(0, lambda: display_results(result_data))
 
-            result_text = scrolledtext.ScrolledText(root, width=80, height=20)
-            result_text.pack(expand=True, fill="both", padx=10, pady=10)
-
-            button_scan = tk.Button(root, text="Scanner le réseau local", command=lambda: start_scan(entry_ip_address.get(), entry_subnet_mask.get(), result_text))
-            button_scan.pack(pady=10)
-
-            root.mainloop()
+        if result_data:
+            save_results_to_json(result_data)
+            upload_to_github()  # Appel de la fonction pour téléverser les résultats sur GitHub
         else:
-            # If running in GitHub Actions, run scan directly without GUI
-            start_scan("192.168.1.1", "24", None)  # Example IP address and subnet mask, replace with your logic
+            messagebox.showinfo("Information", "Aucun hôte disponible trouvé pendant le scan.")
+            
     except Exception as e:
-        print("An error occurred during the scan:", str(e))
-
-def start_scan(ip_address, subnet_mask, result_text):
-    nm = nmap.PortScanner()
-    nm.scan(hosts=calculate_network_range(ip_address, subnet_mask), arguments='-sn')
-
-    result_data = []
-
-    for host in nm.all_hosts():
-        if nm[host].state() == 'up':
-            host_info = {
-                'IP Address': host,
-                'Hostname': get_hostnames(nm[host]) if 'hostnames' in nm[host] else 'N/A',
-                'State': nm[host].state(),
-                'MAC Address': nm[host]['addresses']['mac'] if 'mac' in nm[host]['addresses'] else 'N/A',
-                'Vendor': nm[host]['vendor'] if 'vendor' in nm[host] else 'N/A',
-                'Date': datetime.now().strftime("%Y-%m-%d"),
-                'Time': datetime.now().strftime("%H:%M:%S")
-            }
-            result_data.append(host_info)
-
-    if result_data:
-        save_results_to_json(result_data)
-        upload_to_github()
-        if result_text:
-            display_results(result_data, result_text)
-
-def display_results(result_data, result_text):
-    for host_info in result_data:
-        result_text.insert(tk.END, "IP Address: {}\n".format(host_info['IP Address']))
-        result_text.insert(tk.END, "Hostname: {}\n".format(host_info['Hostname']))
-        result_text.insert(tk.END, "State: {}\n".format(host_info['State']))
-        result_text.insert(tk.END, "MAC Address: {}\n".format(host_info['MAC Address']))
-        result_text.insert(tk.END, "Vendor: {}\n".format(host_info['Vendor']))
-        result_text.insert(tk.END, "Date: {}\n".format(host_info['Date']))
-        result_text.insert(tk.END, "Time: {}\n".format(host_info['Time']))
-        result_text.insert(tk.END, "\n")
+        messagebox.showerror("Erreur", f"Une erreur s'est produite pendant le scan : {str(e)}")
 
 def get_hostnames(host_data):
     hostnames = host_data['hostnames']
     if hostnames:
         return ', '.join(name['name'] for name in hostnames)
     else:
-        return 'N/A'
+        return 'Non disponible'
+
+def display_results(result_data):
+    result_window = tk.Toplevel()
+    result_window.title("Résultats du scan")
+
+    result_text = scrolledtext.ScrolledText(result_window, width=80, height=20)
+    result_text.pack(expand=True, fill="both")
+
+    for host_info in result_data:
+        result_text.insert(tk.END, "Adresse IP: {}\n".format(host_info['Adresse IP']))
+        result_text.insert(tk.END, "Nom d'hôte: {}\n".format(host_info['Nom d\'hôte']))
+        result_text.insert(tk.END, "État: {}\n".format(host_info['État']))
+        result_text.insert(tk.END, "Adresses MAC: {}\n".format(host_info['Adresses MAC']))
+        result_text.insert(tk.END, "Fabricant: {}\n".format(host_info['Fabricant']))
+        result_text.insert(tk.END, "Date du scan: {}\n".format(host_info['Date']))
+        result_text.insert(tk.END, "Heure du scan: {}\n".format(host_info['Heure']))
+        result_text.insert(tk.END, "\n")
+
+    result_text.configure(state='disabled')
 
 def calculate_network_range(ip_address, subnet_mask):
     network_address = ipaddress.IPv4Network(ip_address + '/' + subnet_mask, strict=False)
     return str(network_address.network_address) + '/' + str(network_address.prefixlen)
 
-if __name__ == "__main__":
-    scan_network()
+root = tk.Tk()
+root.title("Scanner de réseaux locaux")
+
+label_ip_address = tk.Label(root, text="Adresse IP:")
+label_ip_address.pack(pady=5)
+
+entry_ip_address = tk.Entry(root, width=40)
+entry_ip_address.pack(pady=5)
+
+label_subnet_mask = tk.Label(root, text="Masque de sous-réseau:")
+label_subnet_mask.pack(pady=5)
+
+entry_subnet_mask = tk.Entry(root, width=40)
+entry_subnet_mask.pack(pady=5)
+
+result_text = scrolledtext.ScrolledText(root, width=80, height=20)
+result_text.pack(expand=True, fill="both", padx=10, pady=10)
+
+button_scan = tk.Button(root, text="Scanner le réseau local", command=scan_network)
+button_scan.pack(pady=10)
+
+root.mainloop()
