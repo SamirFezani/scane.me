@@ -20,12 +20,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install python3-nmap
-          pip install requests
+          /usr/bin/python3 -m pip install python3-nmap
+          /usr/bin/python3 -m pip install requests
 
       - name: Run Harvester Script
         run: |
-          python harvester.py
+          /usr/bin/python3 harvester.py
 
       - name: Commit Scan Results
         run: |
