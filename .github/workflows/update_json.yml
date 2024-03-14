@@ -17,7 +17,13 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.12' 
-      
+
+      - name: Install Dependencies
+        run: |
+          apt-get update -y
+          apt-get install -y nmap
+          pip install requests
+
       - name: Run Harvester Script
         run: |
           python harvester.py
