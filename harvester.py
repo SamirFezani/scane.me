@@ -14,6 +14,13 @@ def save_results_to_json(result_data):
         messagebox.showinfo("Information", "Résultats du scan sauvegardés avec succès.")
 
 def upload_to_github():
+
+
+
+
+
+
+    
     if os.path.exists('scan_results.json') and os.path.getsize('scan_results.json') > 0:
         with open('scan_results.json', 'r') as json_file:
             data = json.load(json_file)
