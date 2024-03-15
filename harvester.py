@@ -8,6 +8,8 @@ import requests
 import os
 from datetime import datetime
 
+
+
 def save_results_to_json(result_data):
     with open('scan_results.json', 'w') as json_file:
         json.dump(result_data, json_file, indent=2)
